@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class Main {
 
@@ -107,5 +108,50 @@ public class Main {
         Assert.assertEquals(actualAlertMessage, expectedAlertMessage);
         driver.switchTo().alert().accept();
         driver.close();
+    }
+
+    @Test
+    public void testSwitchTab () throws InterruptedException {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://rahulshettyacademy.com/AutomationPractice/");
+        //window 1
+        String mainWindow = driver.getWindowHandle();
+        driver.findElement(By.partialLinkText("Open Tab")).click();
+        Thread.sleep(1000);
+        // it could be 2 or more windows
+        Set<String> windows = driver.getWindowHandles();
+        for (String w: windows) {
+            if (!w.equalsIgnoreCase(mainWindow)) {
+                Thread.sleep(1000);
+                driver.switchTo().window(w);
+                Assert.assertEquals(driver.getCurrentUrl(), "https://www.qaclickacademy.com/");
+                Thread.sleep(1000);
+                Assert.assertEquals(driver.getTitle(), "QAClick Academy - A Testing Academy to Learn, Earn and Shine");
+                String  courses = driver.findElement(By.linkText("Courses")).getText();
+                Assert.assertEquals(courses, "Courses", "Text do not match");
+                driver.close();
+            }
+        }
+        driver.switchTo().window(mainWindow);
+        Assert.assertEquals(driver.getTitle(), "Practice Page");
+        driver.close();
+
+    }
+
+    @Test
+    public void checkElementDisplayed() throws InterruptedException {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://rahulshettyacademy.com/AutomationPractice/");
+        Assert.assertTrue(driver.findElement(By.name("show-hide")).isDisplayed(), "Element is not displayed");
+        Thread.sleep(2000);
+        driver.findElement(By.cssSelector("#hide-textbox")).click();
+        Assert.assertFalse(driver.findElement(By.name("show-hide")).isDisplayed(), "Element is displayed");
+        Thread.sleep(2000);
+        driver.findElement(By.cssSelector("#show-textbox")).click();
+        Assert.assertTrue(driver.findElement(By.name("show-hide")).isDisplayed(), "Element is not displayed");
+        driver.close();
+
     }
 }
