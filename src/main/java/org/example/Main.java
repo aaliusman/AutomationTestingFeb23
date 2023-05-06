@@ -2,9 +2,11 @@ package org.example;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -73,13 +75,15 @@ public class Main {
             Assert.assertEquals(elements.get(i).getText(), expectedDropDown.get(i));
         }
 
+        boolean checkElementExist = false;
+
         for (int i = 0; i < elements.size(); i++) {
             if (elements.get(i).getText().contains("Option2")) {
-                System.out.println("Option " + i + " contains Option2");
-            } else {
-                System.out.println("Option " + i + " does not contain Option2");
+                checkElementExist = true;
+                break;
             }
         }
+        Assert.assertTrue(checkElementExist, "Option2 not found");
         driver.close();
     }
 
@@ -153,5 +157,43 @@ public class Main {
         Assert.assertTrue(driver.findElement(By.name("show-hide")).isDisplayed(), "Element is not displayed");
         driver.close();
 
+    }
+
+    @Test
+    public void handMouseHover() throws InterruptedException {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://rahulshettyacademy.com/AutomationPractice/");
+        Actions actions = new Actions(driver);
+        ((JavascriptExecutor) driver).executeScript("scroll(0,900)");
+        Thread.sleep(2000);
+        WebElement element = driver.findElement(By.id("mousehover"));
+        Thread.sleep(2000);
+        actions.moveToElement(element).build().perform();
+        WebElement element1 = driver.findElement(By.linkText("Top"));
+        element1.click();
+        ((JavascriptExecutor) driver).executeScript("scroll(0,900)");
+        actions.moveToElement(element).build().perform();
+        WebElement element2 = driver.findElement(By.linkText("Reload"));
+        element2.click();
+        driver.close();
+    }
+
+    @Test
+    public void testIframe() throws InterruptedException {
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        driver.get("https://rahulshettyacademy.com/AutomationPractice/");
+        ((JavascriptExecutor) driver).executeScript("scroll(0,1700)");
+        Thread.sleep(2300);
+        driver.switchTo().frame("courses-iframe");
+        driver.findElement(By.cssSelector(".btn.btn-theme.btn-sm.btn-min-block")).click();
+        Thread.sleep(2000);
+        driver.switchTo().defaultContent();
+        ((JavascriptExecutor) driver).executeScript("scroll(0,-700)");
+        driver.findElement(By.id("alertbtn")).click();
+        Thread.sleep(3000);
+        driver.switchTo().alert().accept();
+        driver.close();
     }
 }
